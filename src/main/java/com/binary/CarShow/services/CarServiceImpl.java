@@ -7,6 +7,7 @@ import com.binary.CarShow.repositatories.CarRepository;
 import com.binary.CarShow.repositatories.OwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,9 +56,12 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public List<Car> getAllCar() {
-        return (List<Car>) carRepository.findAll();
-
-
+        List<Car> ListOfCar = (List<Car>) carRepository.findAll();
+        if(ListOfCar.isEmpty()){
+            throw new CarNotFoundException("Resuested car does not exit in our system");
+        }else{
+            return ListOfCar;
+        }
     }
 
     @Override
@@ -94,7 +98,7 @@ public class CarServiceImpl implements CarService {
             carRepository.deleteById(Math.toIntExact(id));
             return id;
         }else{
-            throw new CarNotFoundException("Resuested car with " + id + " does not exit in our system");
+            throw new CarNotFoundException("Requested car with " + id + " does not exit in our system");
 
         }
     }

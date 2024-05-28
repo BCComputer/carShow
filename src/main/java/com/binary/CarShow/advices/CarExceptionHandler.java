@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +37,16 @@ public class CarExceptionHandler extends RuntimeException{
         errorMap.put("httpStatus ", HttpStatus.BAD_REQUEST.toString());
 
         return new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(value = {NoResourceFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Object> noResourceFoundException(NoResourceFoundException noResourceFoundException){
+        Map<String, String> errorMap = new HashMap<>();
+
+        errorMap.put("Message ", noResourceFoundException.getMessage());
+        errorMap.put("TimeStamp ", new Date().toString());
+        errorMap.put("httpStatus ", HttpStatus.NOT_FOUND.getReasonPhrase());
+        return new ResponseEntity<>(errorMap, HttpStatus.NOT_FOUND);
     }
 
 }
