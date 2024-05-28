@@ -1,8 +1,10 @@
 package com.binary.CarShow.controllers;
 
+import com.binary.CarShow.dtos.CarDto;
 import com.binary.CarShow.entities.Car;
 import com.binary.CarShow.services.CarService;
 import com.binary.CarShow.services.OwnerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ public class OwnerController {
     }
 
     @PostMapping("/createCar")
-    public ResponseEntity<Car> createCar(@RequestBody Car car) {
+    public ResponseEntity<Car> createCar(@Valid @RequestBody CarDto car) {
         Car createdCar = carService.createCar(car);
         return new ResponseEntity<>(createdCar, HttpStatus.CREATED);
     }

@@ -1,7 +1,8 @@
 package com.binary.CarShow.services;
 
+import com.binary.CarShow.dtos.CarDto;
 import com.binary.CarShow.entities.Car;
-import com.binary.CarShow.entities.Owner;
+import com.binary.CarShow.exceptions.CarNotFoundException;
 import com.binary.CarShow.repositatories.CarRepository;
 import com.binary.CarShow.repositatories.OwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,27 @@ public class CarServiceImpl implements CarService {
     private OwnerRepository ownerRepository;
 
     @Override
+    public Car createCar(CarDto carDto) {
+
+        if (carDto == null) {
+            return null;
+        }
+        if (carDto.getOwner() != null && carDto.getOwner().getOwnerId() == null) {
+            ownerRepository.save(carDto.getOwner());
+        }
+        Car car = new Car();
+        car.setBrand(carDto.getBrand());
+        car.setModel(carDto.getModel());
+        car.setColor(carDto.getColor());
+        car.setYear(carDto.getYear());
+        car.setPrice(carDto.getPrice());
+        car.setOwner(carDto.getOwner());
+
+        return carRepository.save(car);
+    }
+
+    /*
+    @Override
     public Car createCar(Car car) {
 
         if (car == null) {
@@ -29,6 +51,7 @@ public class CarServiceImpl implements CarService {
         Car savedCar = carRepository.save(car);
         return carRepository.save(savedCar);
     }
+     */
 
     @Override
     public List<Car> getAllCar() {
@@ -70,19 +93,29 @@ public class CarServiceImpl implements CarService {
         if(car.isPresent()){
             carRepository.deleteById(Math.toIntExact(id));
             return id;
-        }
+        }else{
+            throw new CarNotFoundException("Resuested car with " + id + " does not exit in our system");
 
-        return null;
+        }
     }
 
-    @Override
+
+/*    @Override
     public Car getCarById(Long id) {
         Optional<Car> car = carRepository.findById(Math.toIntExact(id));
         if (car.isPresent()) {
             return car.get();
         } else {
             return null;
-            //throw new IllegalArgumentException(id + " Car Does not exist.");
         }
+    }*/
+    @Override
+    public Car getCarById(Long id) throws CarNotFoundException {
+        Optional<Car> car = carRepository.findById(Math.toIntExact(id));
+     if(car.isEmpty()){
+         throw new CarNotFoundException("Resuested car with " + id + " does not exit in our system");
+     }else {
+         return car.get();
+     }
     }
 }

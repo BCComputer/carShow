@@ -1,6 +1,5 @@
 package com.binary.CarShow.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CarDto {
+public class CarDtooooo {
     private Integer id;
     private String brand;
     private String model;

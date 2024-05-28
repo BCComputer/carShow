@@ -24,4 +24,5 @@ public class Car {
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "owner")
     private Owner owner;
+
 }
