@@ -58,7 +58,7 @@ public class CarServiceImpl implements CarService {
     public List<Car> getAllCar() {
         List<Car> ListOfCar = (List<Car>) carRepository.findAll();
         if(ListOfCar.isEmpty()){
-            throw new CarNotFoundException("Resuested car does not exit in our system");
+            throw new CarNotFoundException("Requested car does not exit in our system");
         }else{
             return ListOfCar;
         }
