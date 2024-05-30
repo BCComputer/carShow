@@ -1,26 +1,49 @@
 package com.binary.CarShow.config;
 
+import com.binary.CarShow.services.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private MemberDetailsService memberDetailsService;
+    @Autowired
+    private JwtTokenFilter jwtTokenFilter;
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorization ->
-                        authorization.requestMatchers("/api/v1/car/createCar", "/api/v1/member/register").permitAll()
+                        authorization.requestMatchers( "/api/v1/member/register", "/api/v1/member/login").permitAll()
                                 .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                //Cross-Site Request Forgery
                 .csrf(csrf -> csrf.disable());
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(memberDetailsService)
+                //.passwordEncoder(noOpPasswordEncoder())
+                .passwordEncoder(noOpPasswordEncoder())
+                .and().build();
+
     }
 
 /*    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -53,27 +76,32 @@ public class SecurityConfig {
     */
     // Approach 2 with using NoOpPasswordEncode -> no hashing/encoding
 
-   /* @Bean
-    public UserDetailsService userDetailsService() {
-        User admin = (User) User.withUsername("Admin")
-                .username("admin")
-                .password("1234")
-                .build();
+    /* @Bean
+     public UserDetailsService userDetailsService() {
+         User admin = (User) User.withUsername("Admin")
+                 .username("admin")
+                 .password("1234")
+                 .build();
 
-        var user = User.withUsername("user1")
-                .username("user1")
-                .password("password1")
-                .authorities("user")
-                .build();
+         var user = User.withUsername("user1")
+                 .username("user1")
+                 .password("password1")
+                 .authorities("user")
+                 .build();
 
-        UserDetailsService userDetailsService = new InMemoryUserDetailsManager(admin, user);
+         UserDetailsService userDetailsService = new InMemoryUserDetailsManager(admin, user);
 
-        return userDetailsService;
-    }*/
+         return userDetailsService;
+     }*/
     @Bean
-    public PasswordEncoder noOpPasswordEncoder(){
+    public PasswordEncoder noOpPasswordEncoder() {
         return NoOpPasswordEncoder.getInstance();
     }
+  /*  @Bean
+    public PasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }*/
+
 
  /*   @Bean
     public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
